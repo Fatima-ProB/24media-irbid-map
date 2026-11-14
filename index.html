@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Irbid Project Map</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <style>
+    :root { --ink:#18212f; --muted:#64748b; --line:#e5eaf0; --accent:#5b4bdb; }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family:Arial, sans-serif; color:var(--ink); background:#f5f7fb; }
+    header { padding:18px 22px; background:#fff; border-bottom:1px solid var(--line); }
+    h1 { margin:0 0 5px; font-size:22px; }
+    header p { margin:0; color:var(--muted); font-size:13px; }
+    .layout { display:grid; grid-template-columns:340px 1fr; height:calc(100vh - 75px); min-height:520px; }
+    aside { background:#fff; border-right:1px solid var(--line); padding:16px; overflow:auto; }
+    #map { height:100%; width:100%; }
+    input, select { width:100%; padding:11px 12px; border:1px solid var(--line); border-radius:9px; margin:0 0 10px; font-size:14px; background:#fff; }
+    .count { color:var(--muted); font-size:12px; margin:2px 0 12px; }
+    .project { border:1px solid var(--line); border-radius:11px; overflow:hidden; margin-bottom:12px; background:#fff; cursor:pointer; }
+    .project img { width:100%; height:118px; object-fit:cover; display:block; background:#e8edf4; }
+    .project .body { padding:10px 11px; }
+    .project h3 { font-size:14px; margin:0 0 5px; }
+    .project p { color:var(--muted); font-size:12px; line-height:1.4; margin:0 0 7px; }
+    .tag { display:inline-block; font-size:11px; padding:4px 7px; border-radius:20px; background:#efedff; color:#5142c5; }
+    .leaflet-popup-content { width:240px; margin:12px; }
+    .popup img { width:100%; height:130px; object-fit:cover; border-radius:7px; margin-bottom:8px; }
+    .popup h3 { margin:0 0 6px; font-size:16px; }
+    .popup p { margin:0 0 6px; line-height:1.4; font-size:13px; }
+    .popup small { color:#64748b; }
+    .notice { padding:10px; border-radius:9px; background:#fff8e6; color:#785b16; font-size:12px; line-height:1.4; margin-top:12px; }
+    @media (max-width:760px) {
+      .layout { grid-template-columns:1fr; grid-template-rows:42% 58%; height:calc(100vh - 75px); }
+      #map { grid-row:1; }
+      aside { grid-row:2; border-right:0; border-top:1px solid var(--line); }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Irbid Project Map</h1>
+    <p>Explore project locations across Irbid, Jordan. Select a marker to view its photo and details.</p>
+  </header>
+  <main class="layout">
+    <aside>
+      <input id="search" type="search" placeholder="Search projects or descriptions…">
+      <select id="category"><option value="">All categories</option></select>
+      <div class="count" id="count"></div>
+      <div id="list"></div>
+      <div class="notice"><strong>Demo data:</strong> These are sample pins, not verified project locations. Replace the sample records in the PROJECTS list inside index.html with your real project names, coordinates, photos and descriptions before sharing.</div>
+    </aside>
+    <div id="map" aria-label="Interactive map of Irbid"></div>
+  </main>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    // Replace these sample records with your real project information.
+    // Coordinates are [latitude, longitude]. Use a direct image URL for each photo.
+    const PROJECTS = [
+      {
+        id:"IRB-001", name:"Sample Project — City Centre", category:"Commercial",
+        status:"Example", address:"Irbid city centre, Jordan",
+        lat:32.5556, lng:35.8493,
+        description:"Demo entry. Replace this text with a short description of the project, its purpose and any useful details.",
+        image:"https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=900"
+      },
+      {
+        id:"IRB-002", name:"Sample Project — University Area", category:"Education",
+        status:"Example", address:"University Street area, Irbid",
+        lat:32.5387, lng:35.8550,
+        description:"Demo entry near the university area. Replace the location and description with verified project details.",
+        image:"https://images.unsplash.com/photo-1562774053-701939374585?w=900"
+      },
+      {
+        id:"IRB-003", name:"Sample Project — Northern District", category:"Infrastructure",
+        status:"Example", address:"Northern Irbid area, Jordan",
+        lat:32.5740, lng:35.8500,
+        description:"Demo entry. Add information about the project, its current status and why it is relevant.",
+        image:"https://images.unsplash.com/photo-1497366754035-f200968a6e72?w=900"
+      },
+      {
+        id:"IRB-004", name:"Sample Project — Eastern District", category:"Community",
+        status:"Example", address:"Eastern Irbid area, Jordan",
+        lat:32.5550, lng:35.8750,
+        description:"Demo entry. Add a project photo and a concise, accurate description.",
+        image:"https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=900"
+      },
+      {
+        id:"IRB-005", name:"Sample Project — Southern District", category:"Commercial",
+        status:"Example", address:"Southern Irbid area, Jordan",
+        lat:32.5320, lng:35.8420,
+        description:"Demo entry. Replace all sample information before publishing the map.",
+        image:"https://images.unsplash.com/photo-1497366216548-37526070297c?w=900"
+      }
+    ];
+
+    const map = L.map('map').setView([32.5556, 35.8493], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom:19,
+      attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    const markers = new Map();
+    const categorySelect = document.getElementById('category');
+    [...new Set(PROJECTS.map(p => p.category))].sort().forEach(c => {
+      const opt = document.createElement('option'); opt.value=c; opt.textContent=c; categorySelect.appendChild(opt);
+    });
+
+    function popup(p) {
+      return `<div class="popup">
+        <img src="${p.image}" alt="${p.name}" onerror="this.style.display='none'">
+        <h3>${p.name}</h3>
+        <p>${p.description}</p>
+        <small><b>ID:</b> ${p.id} &nbsp; <b>Category:</b> ${p.category}</small><br>
+        <small>${p.address}</small>
+      </div>`;
+    }
+
+    PROJECTS.forEach(p => {
+      const marker = L.marker([p.lat,p.lng]).bindPopup(popup(p));
+      markers.set(p.id, marker);
+      marker.addTo(map);
+    });
+
+    function render() {
+      const q = document.getElementById('search').value.toLowerCase().trim();
+      const cat = categorySelect.value;
+      const filtered = PROJECTS.filter(p =>
+        (!cat || p.category === cat) &&
+        (!q || [p.id,p.name,p.category,p.address,p.description].join(' ').toLowerCase().includes(q))
+      );
+      document.getElementById('count').textContent = `${filtered.length} of ${PROJECTS.length} projects`;
+      document.getElementById('list').innerHTML = filtered.map(p => `
+        <article class="project" data-id="${p.id}">
+          <img src="${p.image}" alt="${p.name}" onerror="this.style.display='none'">
+          <div class="body"><h3>${p.name}</h3><p>${p.address}</p><span class="tag">${p.category}</span></div>
+        </article>`).join('');
+      markers.forEach(m => map.removeLayer(m));
+      filtered.forEach(p => markers.get(p.id).addTo(map));
+      document.querySelectorAll('.project').forEach(card => card.addEventListener('click', () => {
+        const p = PROJECTS.find(x => x.id === card.dataset.id);
+        map.setView([p.lat,p.lng],16); markers.get(p.id).openPopup();
+      }));
+    }
+    document.getElementById('search').addEventListener('input',render);
+    categorySelect.addEventListener('change',render);
+    render();
+  </script>
+</body>
+</html>
