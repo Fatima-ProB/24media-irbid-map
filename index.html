@@ -1,149 +1,100 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Irbid Project Map</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-  <style>
-    :root { --ink:#18212f; --muted:#64748b; --line:#e5eaf0; --accent:#5b4bdb; }
-    * { box-sizing:border-box; }
-    body { margin:0; font-family:Arial, sans-serif; color:var(--ink); background:#f5f7fb; }
-    header { padding:18px 22px; background:#fff; border-bottom:1px solid var(--line); }
-    h1 { margin:0 0 5px; font-size:22px; }
-    header p { margin:0; color:var(--muted); font-size:13px; }
-    .layout { display:grid; grid-template-columns:340px 1fr; height:calc(100vh - 75px); min-height:520px; }
-    aside { background:#fff; border-right:1px solid var(--line); padding:16px; overflow:auto; }
-    #map { height:100%; width:100%; }
-    input, select { width:100%; padding:11px 12px; border:1px solid var(--line); border-radius:9px; margin:0 0 10px; font-size:14px; background:#fff; }
-    .count { color:var(--muted); font-size:12px; margin:2px 0 12px; }
-    .project { border:1px solid var(--line); border-radius:11px; overflow:hidden; margin-bottom:12px; background:#fff; cursor:pointer; }
-    .project img { width:100%; height:118px; object-fit:cover; display:block; background:#e8edf4; }
-    .project .body { padding:10px 11px; }
-    .project h3 { font-size:14px; margin:0 0 5px; }
-    .project p { color:var(--muted); font-size:12px; line-height:1.4; margin:0 0 7px; }
-    .tag { display:inline-block; font-size:11px; padding:4px 7px; border-radius:20px; background:#efedff; color:#5142c5; }
-    .leaflet-popup-content { width:240px; margin:12px; }
-    .popup img { width:100%; height:130px; object-fit:cover; border-radius:7px; margin-bottom:8px; }
-    .popup h3 { margin:0 0 6px; font-size:16px; }
-    .popup p { margin:0 0 6px; line-height:1.4; font-size:13px; }
-    .popup small { color:#64748b; }
-    .notice { padding:10px; border-radius:9px; background:#fff8e6; color:#785b16; font-size:12px; line-height:1.4; margin-top:12px; }
-    @media (max-width:760px) {
-      .layout { grid-template-columns:1fr; grid-template-rows:42% 58%; height:calc(100vh - 75px); }
-      #map { grid-row:1; }
-      aside { grid-row:2; border-right:0; border-top:1px solid var(--line); }
-    }
-  </style>
-</head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Irbid Outdoor Advertising Map | 24 Media</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css">
+<style>
+:root{--ink:#172033;--muted:#64748b;--line:#e4e9f0;--accent:#5145cd}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;color:var(--ink);background:#f4f6fa}
+header{background:#fff;padding:17px 22px;border-bottom:1px solid var(--line)}
+h1{font-size:21px;margin:0 0 5px}header p{margin:0;color:var(--muted);font-size:13px}
+.stats{display:flex;gap:9px;flex-wrap:wrap;margin-top:13px}.stat{background:#f5f6ff;border:1px solid #e7e7fb;border-radius:9px;padding:8px 12px;min-width:105px}.stat b{display:block;font-size:18px}.stat span{font-size:11px;color:var(--muted)}
+.layout{display:grid;grid-template-columns:355px 1fr;height:calc(100vh - 132px);min-height:540px}
+aside{background:#fff;border-right:1px solid var(--line);padding:14px;overflow:auto}
+#map{height:100%;width:100%}
+input,select{width:100%;padding:10px 11px;border:1px solid var(--line);border-radius:8px;margin:0 0 9px;background:white;font-size:13px}
+.filters-title{font-size:12px;font-weight:bold;margin:7px 0 9px;color:#475569}
+.count{font-size:12px;color:var(--muted);margin:2px 0 10px}
+.card{border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:10px;background:#fff;cursor:pointer}
+.card img{width:100%;height:105px;object-fit:cover;display:block;background:#e8edf4}
+.cardbody{padding:9px 10px}.card h3{font-size:13px;margin:0 0 5px}.card p{font-size:11px;color:var(--muted);margin:0 0 6px;line-height:1.35}
+.tag{display:inline-block;border-radius:20px;padding:4px 7px;font-size:10px;background:#f0efff;color:#4f46b8;margin:2px 3px 0 0}
+.legend{display:flex;flex-wrap:wrap;gap:7px;margin:7px 0 12px}.legend span{font-size:10px;color:#475569;display:flex;align-items:center;gap:4px}.dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+.notice{background:#fff8e6;color:#765b18;border-radius:8px;padding:9px;font-size:11px;line-height:1.4;margin-top:10px}
+.popup{width:240px}.popup img{width:100%;height:125px;object-fit:cover;border-radius:7px;margin-bottom:7px}.popup h3{font-size:15px;margin:0 0 6px}.popup p{font-size:12px;line-height:1.4;margin:0 0 6px}.popup small{font-size:11px;color:#64748b;line-height:1.5}
+@media(max-width:760px){.layout{grid-template-columns:1fr;grid-template-rows:43% 57%;height:calc(100vh - 180px)}#map{grid-row:1}aside{grid-row:2;border:0;border-top:1px solid var(--line)}}
+</style></head>
 <body>
-  <header>
-    <h1>Irbid Project Map</h1>
-    <p>Explore project locations across Irbid, Jordan. Select a marker to view its photo and details.</p>
-  </header>
-  <main class="layout">
-    <aside>
-      <input id="search" type="search" placeholder="Search projects or descriptions…">
-      <select id="category"><option value="">All categories</option></select>
-      <div class="count" id="count"></div>
-      <div id="list"></div>
-      <div class="notice"><strong>Demo data:</strong> These are sample pins, not verified project locations. Replace the sample records in the PROJECTS list inside index.html with your real project names, coordinates, photos and descriptions before sharing.</div>
-    </aside>
-    <div id="map" aria-label="Interactive map of Irbid"></div>
-  </main>
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script>
-    // Replace these sample records with your real project information.
-    // Coordinates are [latitude, longitude]. Use a direct image URL for each photo.
-    const PROJECTS = [
-      {
-        id:"IRB-001", name:"Sample Project — City Centre", category:"Commercial",
-        status:"Example", address:"Irbid city centre, Jordan",
-        lat:32.5556, lng:35.8493,
-        description:"Demo entry. Replace this text with a short description of the project, its purpose and any useful details.",
-        image:"https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=900"
-      },
-      {
-        id:"IRB-002", name:"Sample Project — University Area", category:"Education",
-        status:"Example", address:"University Street area, Irbid",
-        lat:32.5387, lng:35.8550,
-        description:"Demo entry near the university area. Replace the location and description with verified project details.",
-        image:"https://images.unsplash.com/photo-1562774053-701939374585?w=900"
-      },
-      {
-        id:"IRB-003", name:"Sample Project — Northern District", category:"Infrastructure",
-        status:"Example", address:"Northern Irbid area, Jordan",
-        lat:32.5740, lng:35.8500,
-        description:"Demo entry. Add information about the project, its current status and why it is relevant.",
-        image:"https://images.unsplash.com/photo-1497366754035-f200968a6e72?w=900"
-      },
-      {
-        id:"IRB-004", name:"Sample Project — Eastern District", category:"Community",
-        status:"Example", address:"Eastern Irbid area, Jordan",
-        lat:32.5550, lng:35.8750,
-        description:"Demo entry. Add a project photo and a concise, accurate description.",
-        image:"https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=900"
-      },
-      {
-        id:"IRB-005", name:"Sample Project — Southern District", category:"Commercial",
-        status:"Example", address:"Southern Irbid area, Jordan",
-        lat:32.5320, lng:35.8420,
-        description:"Demo entry. Replace all sample information before publishing the map.",
-        image:"https://images.unsplash.com/photo-1497366216548-37526070297c?w=900"
-      }
-    ];
-
-    const map = L.map('map').setView([32.5556, 35.8493], 13);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom:19,
-      attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
-
-    const markers = new Map();
-    const categorySelect = document.getElementById('category');
-    [...new Set(PROJECTS.map(p => p.category))].sort().forEach(c => {
-      const opt = document.createElement('option'); opt.value=c; opt.textContent=c; categorySelect.appendChild(opt);
-    });
-
-    function popup(p) {
-      return `<div class="popup">
-        <img src="${p.image}" alt="${p.name}" onerror="this.style.display='none'">
-        <h3>${p.name}</h3>
-        <p>${p.description}</p>
-        <small><b>ID:</b> ${p.id} &nbsp; <b>Category:</b> ${p.category}</small><br>
-        <small>${p.address}</small>
-      </div>`;
-    }
-
-    PROJECTS.forEach(p => {
-      const marker = L.marker([p.lat,p.lng]).bindPopup(popup(p));
-      markers.set(p.id, marker);
-      marker.addTo(map);
-    });
-
-    function render() {
-      const q = document.getElementById('search').value.toLowerCase().trim();
-      const cat = categorySelect.value;
-      const filtered = PROJECTS.filter(p =>
-        (!cat || p.category === cat) &&
-        (!q || [p.id,p.name,p.category,p.address,p.description].join(' ').toLowerCase().includes(q))
-      );
-      document.getElementById('count').textContent = `${filtered.length} of ${PROJECTS.length} projects`;
-      document.getElementById('list').innerHTML = filtered.map(p => `
-        <article class="project" data-id="${p.id}">
-          <img src="${p.image}" alt="${p.name}" onerror="this.style.display='none'">
-          <div class="body"><h3>${p.name}</h3><p>${p.address}</p><span class="tag">${p.category}</span></div>
-        </article>`).join('');
-      markers.forEach(m => map.removeLayer(m));
-      filtered.forEach(p => markers.get(p.id).addTo(map));
-      document.querySelectorAll('.project').forEach(card => card.addEventListener('click', () => {
-        const p = PROJECTS.find(x => x.id === card.dataset.id);
-        map.setView([p.lat,p.lng],16); markers.get(p.id).openPopup();
-      }));
-    }
-    document.getElementById('search').addEventListener('input',render);
-    categorySelect.addEventListener('change',render);
-    render();
-  </script>
-</body>
-</html>
+<header>
+<h1>Irbid Outdoor Advertising Map</h1>
+<p>Outdoor advertising intelligence directory across Irbid, Jordan — including independent and competing operators.</p>
+<div class="stats">
+<div class="stat"><b id="total">0</b><span>Total locations</span></div>
+<div class="stat"><b id="staticCount">0</b><span>Static formats</span></div>
+<div class="stat"><b id="digitalCount">0</b><span>Digital screens</span></div>
+<div class="stat"><b id="companiesCount">0</b><span>Owners / operators</span></div>
+</div></header>
+<main class="layout"><aside>
+<input id="search" placeholder="Search ID, street, company, description…">
+<div class="filters-title">FIND A PLACE ON THE MAP</div>
+<div style="font-size:11px;color:#64748b;margin:-4px 0 10px">Use the map search to find streets, neighborhoods and landmarks. Coverage and labels depend on map data.</div>
+<div class="filters-title">FILTER ADVERTISING LOCATIONS</div>
+<select id="type"><option value="">All advertising formats</option></select>
+<select id="owner"><option value="">All owners / operators</option></select>
+<select id="status"><option value="">All statuses</option><option>Available</option><option>Occupied</option><option>Reserved</option><option>Unknown</option></select>
+<div class="legend" id="legend"></div>
+<div class="count" id="count"></div><div id="cards"></div>
+<div class="notice"><b>Data note:</b> Map layers provide geographical context, not a guaranteed complete list of every street, business or landmark. Advertising markers currently shown are DEMO examples only — not verified assets, coordinates, prices, owners or operators. Replace them with field-verified records before relying on or sharing this directory as factual.</div>
+</aside><div id="map"></div></main>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+<script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+<script>
+// DATA TEMPLATE: replace demo records with verified sites.
+// owner = legal/site owner where known; operator = advertising company managing/selling the space.
+// Coordinates are decimal degrees: lat and lng. Use an image URL you have permission to publish.
+const SITES = [
+{id:"IRB-OOH-001",name:"Demo Static Billboard — City Centre",type:"Static billboard",format:"Large roadside billboard",street:"Irbid city centre (demo)",lat:32.5556,lng:35.8493,owner:"Owner not verified",operator:"Operator not verified",status:"Unknown",dimensions:"To be surveyed",facing:"To be surveyed",description:"Demonstration record only. Replace with a verified photo, exact coordinates and site details.",image:"https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=900"},
+{id:"IRB-OOH-002",name:"Demo LED Screen — University Area",type:"Digital LED screen",format:"Digital outdoor screen",street:"University Street area (demo)",lat:32.5387,lng:35.8550,owner:"Owner not verified",operator:"Operator not verified",status:"Unknown",dimensions:"To be surveyed",facing:"To be surveyed",description:"Demonstration record only. Confirm whether the screen is operational and identify its operator.",image:"https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=900"},
+{id:"IRB-OOH-003",name:"Demo Unipole — Northern Irbid",type:"Unipole / Megacom",format:"Elevated large-format display",street:"Northern Irbid area (demo)",lat:32.5740,lng:35.8500,owner:"Owner not verified",operator:"Operator not verified",status:"Unknown",dimensions:"To be surveyed",facing:"To be surveyed",description:"Demonstration record only. Replace with verified asset information.",image:"https://images.unsplash.com/photo-1497366754035-f200968a6e72?w=900"},
+{id:"IRB-OOH-004",name:"Demo Building Facade — Eastern District",type:"Building facade",format:"Building-mounted advertising",street:"Eastern Irbid area (demo)",lat:32.5550,lng:35.8750,owner:"Owner not verified",operator:"Operator not verified",status:"Unknown",dimensions:"To be surveyed",facing:"To be surveyed",description:"Demonstration record only. Verify permission, owner and advertising operator.",image:"https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=900"},
+{id:"IRB-OOH-005",name:"Demo Street Furniture — Southern District",type:"Street furniture",format:"Street-level advertising",street:"Southern Irbid area (demo)",lat:32.5320,lng:35.8420,owner:"Owner not verified",operator:"Operator not verified",status:"Unknown",dimensions:"To be surveyed",facing:"To be surveyed",description:"Demonstration record only. Confirm exact asset type and responsible operator.",image:"https://images.unsplash.com/photo-1497366216548-37526070297c?w=900"}
+];
+const colors={"Static billboard":"#2563eb","Digital LED screen":"#db2777","Unipole / Megacom":"#7c3aed","Building facade":"#d97706","Street furniture":"#059669","Bridge / road structure":"#475569","Other":"#64748b"};
+const map=L.map("map").setView([32.5556,35.8493],13);
+const osm=L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'});
+const satellite=L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",{maxZoom:19,attribution:'Tiles &copy; Esri — Sources: Esri, Maxar, Earthstar Geographics, and the GIS User Community'});
+const terrain=L.tileLayer("https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",{maxZoom:17,attribution:'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, SRTM | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a>'});
+const hybrid=L.layerGroup([satellite,L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,opacity:0.72,attribution:'&copy; OpenStreetMap contributors'})]);
+osm.addTo(map);
+L.control.layers({"Standard streets":osm,"Satellite":satellite,"Terrain":terrain,"Hybrid (satellite + labels)":hybrid},null,{collapsed:false}).addTo(map);
+L.Control.geocoder({defaultMarkGeocode:false,placeholder:"Search streets, places…",geocoder:L.Control.Geocoder.nominatim({geocodingQueryParams:{countrycodes:"jo"}})}).on("markgeocode",function(e){const b=e.geocode.bbox;map.fitBounds([[b.getSouth(),b.getWest()],[b.getNorth(),b.getEast()]]);L.popup().setLatLng(e.geocode.center).setContent(`<b>${safe(e.geocode.name)}</b>`).openOn(map);}).addTo(map);
+const markerGroup=L.markerClusterGroup({showCoverageOnHover:false,chunkedLoading:true});map.addLayer(markerGroup);
+const markers=new Map();
+const typeSel=document.getElementById("type"),ownerSel=document.getElementById("owner");
+[...new Set(SITES.map(x=>x.type))].sort().forEach(v=>typeSel.add(new Option(v,v)));
+[...new Set(SITES.flatMap(x=>[x.owner,x.operator]).filter(x=>x && !x.toLowerCase().includes("not verified")))].sort().forEach(v=>ownerSel.add(new Option(v,v)));
+const owners=new Set(SITES.flatMap(x=>[x.owner,x.operator]).filter(Boolean));
+document.getElementById("total").textContent=SITES.length;
+document.getElementById("staticCount").textContent=SITES.filter(x=>x.type!=="Digital LED screen").length;
+document.getElementById("digitalCount").textContent=SITES.filter(x=>x.type==="Digital LED screen").length;
+document.getElementById("companiesCount").textContent=owners.size;
+document.getElementById("legend").innerHTML=Object.entries(colors).map(([k,v])=>`<span><i class="dot" style="background:${v}"></i>${k}</span>`).join("");
+function safe(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function icon(type){return L.divIcon({className:"",html:`<span style="display:block;width:16px;height:16px;border:2px solid white;border-radius:50%;background:${colors[type]||colors.Other};box-shadow:0 1px 5px #555"></span>`,iconSize:[16,16],iconAnchor:[8,8]});}
+function popup(s){return `<div class="popup"><img src="${safe(s.image)}" onerror="this.style.display='none'"><h3>${safe(s.name)}</h3><p>${safe(s.description)}</p><small><b>ID:</b> ${safe(s.id)}<br><b>Format:</b> ${safe(s.format)}<br><b>Street:</b> ${safe(s.street)}<br><b>Owner:</b> ${safe(s.owner)}<br><b>Operator:</b> ${safe(s.operator)}<br><b>Status:</b> ${safe(s.status)}<br><b>Dimensions:</b> ${safe(s.dimensions)}<br><b>Facing:</b> ${safe(s.facing)}</small></div>`;}
+SITES.forEach(s=>{const m=L.marker([s.lat,s.lng],{icon:icon(s.type)}).bindPopup(popup(s));markers.set(s.id,m);markerGroup.addLayer(m);});
+function render(){
+ const q=document.getElementById("search").value.toLowerCase().trim(),t=typeSel.value,o=ownerSel.value,st=document.getElementById("status").value;
+ const rows=SITES.filter(s=>(!t||s.type===t)&&(!o||s.owner===o||s.operator===o)&&(!st||s.status===st)&&(!q||[s.id,s.name,s.type,s.format,s.street,s.owner,s.operator,s.description].join(" ").toLowerCase().includes(q)));
+ document.getElementById("count").textContent=`Showing ${rows.length} of ${SITES.length} advertising locations`;
+ document.getElementById("cards").innerHTML=rows.map(s=>`<article class="card" data-id="${safe(s.id)}"><img src="${safe(s.image)}" onerror="this.style.display='none'"><div class="cardbody"><h3>${safe(s.name)}</h3><p>${safe(s.street)} · ${safe(s.operator)}</p><span class="tag">${safe(s.type)}</span><span class="tag">${safe(s.status)}</span></div></article>`).join("");
+ markerGroup.clearLayers();rows.forEach(s=>markerGroup.addLayer(markers.get(s.id)));
+ document.querySelectorAll(".card").forEach(c=>c.addEventListener("click",()=>{const s=SITES.find(x=>x.id===c.dataset.id);map.setView([s.lat,s.lng],16);markers.get(s.id).openPopup();}));
+}
+["search","type","owner","status"].forEach(id=>document.getElementById(id).addEventListener(id==="search"?"input":"change",render));render();
+</script></body></html>

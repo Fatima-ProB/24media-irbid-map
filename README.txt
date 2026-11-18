@@ -1,27 +1,26 @@
-IRBID PROJECT MAP — STARTER FILE
+24 Media — Irbid Outdoor Advertising Map (Version 3)
 
-Included:
-- index.html: a responsive interactive map with five DEMO project markers.
-- The map uses Leaflet and OpenStreetMap.
-- Click a marker or a project card to see the photo and description.
+WHAT'S NEW
+- Standard street map, satellite imagery, terrain and hybrid map layers.
+- Place search for streets, neighborhoods and landmarks (via OpenStreetMap Nominatim).
+- Marker clustering for larger advertising inventories.
+- Existing advertising categories, filters, directory cards and popups retained.
 
-IMPORTANT:
-The five locations and descriptions are examples only, not verified project data.
-Before sharing publicly, replace the PROJECTS array in index.html with real records.
-Each record needs:
-id, name, category, status, address, lat, lng, description, image
+PUBLISH / UPDATE ON GITHUB PAGES
+1. Extract this ZIP.
+2. Open your GitHub repository: 24media-irbid-map.
+3. Open index.html and choose the edit/pencil option, or upload the new index.html and replace the old file.
+4. Commit the change to the main branch.
+5. Wait a minute or two, then refresh the published GitHub Pages site.
 
-PUBLISH WITH GITHUB PAGES:
-1. Create a new GitHub repository. Name it irbid-project-map.
-2. Set visibility to Public (required for free GitHub Pages on a free personal account).
-3. Upload index.html to the repository's top/root level.
-4. Open Settings > Pages.
-5. Under Build and deployment, choose Deploy from a branch.
-6. Select branch main and folder /(root), then Save.
-7. Wait for the published URL to appear on the Pages settings screen.
+IMPORTANT DATA LIMITATIONS
+- The five advertising records in this prototype are demonstration examples only. They are not real or verified advertising locations.
+- The map provider does not guarantee complete street, business or landmark coverage. Search results depend on OpenStreetMap/Nominatim data.
+- The satellite layer is Esri imagery; imagery dates and resolution vary by location.
+- Terrain uses OpenTopoMap and has a maximum zoom of 17.
+- The hybrid view overlays OpenStreetMap map tiles on satellite imagery; labels may not perfectly align or be complete.
+- Replace demo records with verified GPS coordinates, photos, owners/operators and field notes before using the map for business decisions.
+- Google Sheets editing/sync is not included in this version.
 
-NOTES:
-- No paid map API key is needed for this starter.
-- OpenStreetMap tile usage is subject to its tile usage policy; do not bulk-download tiles.
-- GitHub Pages hosts static sites. This version uses project data stored in the HTML file.
-- Images are loaded from their image URLs. For production, use images you own or have permission to publish.
+EXTERNAL SERVICES
+Leaflet, OpenStreetMap, Nominatim, Esri World Imagery and OpenTopoMap are loaded online. Their availability and usage policies apply.
